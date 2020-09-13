@@ -1,0 +1,39 @@
+========================================================================================= 07/09/2020
+k create namespace dev-nginx
+k config set-context dev-nginx --namespace=dev-nginx --cluster=kubernetes --user=kubernetes-admin
+
+
+# re-use every time 
+k config use-context dev-nginx
+
+
+# quick and dirty, don't use the templating mechanism of helm :)
+helm create dev-nginx
+cp nginx.yaml dev-nginx/templates/deployment.yaml
+cp nginx-service.yaml dev-nginx/templates/service.yaml
+
+# https://helm.sh/docs/chart_template_guide/getting_started/
+
+
+# package and deploy a helm chart 
+helm package dev-nginx -d ~/nfs/downloads/helm-repo
+helm repo index ~/nfs/downloads/helm-repo
+
+# configure helm with the helm repository on megabeast
+helm repo add mega-charts http://downloads.dev.hk/helm-repo/
+
+# works :)
+$ helm search repo  nginx      
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION                                       
+bitnami/nginx                           6.1.0           1.19.1          Chart for the nginx server                        
+bitnami/nginx-ingress-controller        5.4.5           0.34.1          Chart for the nginx Ingress controller            
+mega-charts/dev-nginx                   0.2.0           1.16.0          A Helm chart for Kubernetes                       
+bitnami/kong                            1.3.0           2.1.3           Kong is a scalable, open source API layer (aka ...
+
+
+mv dev-nginx-0.2.0.tgz ~/project/ 
+
+
+helm repo index . 
+
+
